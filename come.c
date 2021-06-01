@@ -1,48 +1,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "come.h"
+#include "mapa.h"
 
-int linhas;
-int colunas;
-char** mapa;
+MAPA m;
+POSICAO palyer;
 
-void alocaMapa(){
-    mapa = malloc(sizeof(char*)*linhas);
-    for(int i =0;i<linhas;i++){
-        mapa[i] = malloc(sizeof(char)*(colunas+1)); 
-    }
+
+int acabou(){
+    return 0;
 }
-void liberaMapa(){
-   
-
-    for(int i =0;i<linhas;i++){
-        free(mapa[i]);
+void move(char direcao) {
+  
+    
+    m.matriz[palyer.x][palyer.y] ='.';
+    switch(direcao) {
+        case 'a':
+            m.matriz[palyer.x][palyer.y-1] = '@';
+            palyer.y--;
+            break;
+        case 'w':
+            m.matriz[palyer.x-1][palyer.y] = '@';
+            palyer.x--;
+            break;
+        case 's':
+            m.matriz[palyer.x+1][palyer.y] = '@';
+            palyer.x++;
+            break;
+        case 'd':
+            m.matriz[palyer.x][palyer.y+1] = '@';
+            palyer.y++;
+            break;
     }
-    free(mapa);
-}
-void leMapa(){
-    FILE * f;
-    f = fopen("mapa.txt","r");
-    if (f==0){
-        printf("Erro ao buscar o dado tente novamente ");
-        exit(1);
-    }
-
-    fscanf(f,"%d %d",&linhas,&colunas);
-    alocaMapa();
-    for(int i =0; i < 5;i++ ){
-        fscanf(f,"%s",mapa[i]);
-    }
-   
-    fclose(f);
 
 }
-
 int main(){
     
-    leMapa();
-     for(int i =0; i < 5;i++ ){
-        printf("%s \n",mapa[i]);
-    }
-    liberaMapa();
+    leMapa(&m);
+    encontraMapa(&m,&palyer,'@');
+    do{
+       imprimirMapa(&m);
+        char comando;
+        scanf(" %c",&comando);
+        move(comando);
+        
+    }while(!acabou());
+    liberaMapa(&m);
 }
