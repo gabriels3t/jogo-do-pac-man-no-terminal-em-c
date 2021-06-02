@@ -4,45 +4,74 @@
 #include "mapa.h"
 
 MAPA m;
-POSICAO palyer;
+POSICAO player;
 
+void fantasma(){
+    MAPA copia;
+    copiaMapa(&copia,&m);
+    for(int i =0; i < copia.linhas; i++){
+        for(int j =0; j <copia.colunas; j++){
+            if(copia.matriz[i][j] == FANTASMA){
+                if(ehValido(&m,i,j+1) && ehVazia(&m,i,j+1)){
+                    andanomapa(&m,i,j,i,j+1);
+                    
+                }
+            }
+        }
+    }
+    liberaMapa(&copia);
+}
 
 int acabou(){
     return 0;
 }
+int ehDirecao(char direcao){
+    return direcao == 'a' || direcao == 'w' || direcao == 's' || direcao == 'd';
+}
 void move(char direcao) {
   
-    
-    m.matriz[palyer.x][palyer.y] ='.';
+      if(!ehDirecao(direcao)) {
+          return;
+        } 
+
+    int proximox = player.x;
+    int proximoy = player.y;
     switch(direcao) {
-        case 'a':
-            m.matriz[palyer.x][palyer.y-1] = '@';
-            palyer.y--;
+        case ESQUERDA:
+            proximoy--;
             break;
-        case 'w':
-            m.matriz[palyer.x-1][palyer.y] = '@';
-            palyer.x--;
+        case CIMA:
+            proximox--;
             break;
-        case 's':
-            m.matriz[palyer.x+1][palyer.y] = '@';
-            palyer.x++;
+        case BAIXO:
+            proximox++;
             break;
-        case 'd':
-            m.matriz[palyer.x][palyer.y+1] = '@';
-            palyer.y++;
+        case DIREITA:
+            proximoy++;
             break;
     }
+    if(!ehValido(&m,proximox,proximoy)){
+        return;
+    }
+    if(!ehVazia(&m,proximox,proximoy)){
+        return;
+    }
+    andanomapa(&m,player.x,player.y,proximox,proximoy);
+    player.x = proximox;
+    player.y = proximoy;
+    
 
 }
 int main(){
     
     leMapa(&m);
-    encontraMapa(&m,&palyer,'@');
+    encontraMapa(&m,&player,PLAYER);
     do{
        imprimirMapa(&m);
         char comando;
         scanf(" %c",&comando);
         move(comando);
+        fantasma();
         
     }while(!acabou());
     liberaMapa(&m);

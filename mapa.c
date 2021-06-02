@@ -1,6 +1,17 @@
 #include "mapa.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+
+void copiaMapa(MAPA* destino,MAPA* origem){
+    destino->linhas = origem->linhas;
+    destino->colunas = origem->colunas;
+    alocaMapa(destino);
+    for(int i = 0; i < origem->linhas;i++){
+        strcpy(destino->matriz[i],origem->matriz[i]); //Copia duas strings 
+    }
+}
 
 void liberaMapa(MAPA* m){
     for(int i =0;i<m->linhas;i++){ // (*m). é a mesma coisa que m->  
@@ -49,4 +60,26 @@ void encontraMapa(MAPA* m, POSICAO* p,char c){
             }
         }
     } 
+}
+
+int ehValido(MAPA* m, int x, int y){
+     if(x >= m->linhas){
+        return 0;
+    }
+    if(y >= m->colunas){
+        return 0;
+    }
+    return 1;
+
+}
+
+int ehVazia(MAPA* m, int x, int y){
+   return m->matriz[x][y] == VAZIO;
+}
+
+int andanomapa(MAPA*m, int xorigem, int yorigem, int xdestino, int ydestino){
+    char person = m->matriz[xorigem][yorigem];
+    m->matriz[xdestino][ydestino] = person;
+    m->matriz[xorigem][yorigem] = VAZIO;
+
 }
