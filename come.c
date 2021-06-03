@@ -2,9 +2,26 @@
 #include <stdlib.h>
 #include "come.h"
 #include "mapa.h"
+#include <time.h>
+
 
 MAPA m;
 POSICAO player;
+
+int praOndeOFantasmaVai(int xatual, int yatual,int* xdestino,int* ydestino){
+    int opcoes[4][2]={{xatual,yatual +1},{xatual+1,yatual},{xatual,yatual-1},{xatual -1, yatual}};
+    srand(time(0));
+    for(int i=0; i <10;i++){
+        int posicao = rand()%4;
+        if(podeAndar(&m,FANTASMA, opcoes[posicao][0], opcoes[posicao][1])){
+            *xdestino = opcoes[posicao][0];
+            *ydestino =opcoes[posicao][1];
+            return 1;
+        }
+    }
+    return 0;
+}
+    
 
 void fantasma(){
     MAPA copia;
@@ -12,9 +29,11 @@ void fantasma(){
     for(int i =0; i < copia.linhas; i++){
         for(int j =0; j <copia.colunas; j++){
             if(copia.matriz[i][j] == FANTASMA){
-                if(ehValido(&m,i,j+1) && ehVazia(&m,i,j+1)){
-                    andanomapa(&m,i,j,i,j+1);
-                    
+                int xdestino;
+                int ydestino;
+                int encontrou = praOndeOFantasmaVai(i,j,&xdestino,&ydestino);
+                if(encontrou){
+                    andanomapa(&m,i,j,xdestino,ydestino);
                 }
             }
         }
@@ -23,7 +42,9 @@ void fantasma(){
 }
 
 int acabou(){
-    return 0;
+    POSICAO pos;
+    int encontrouHeroi =encontraMapa(&m,&pos,PLAYER);
+    return !encontrouHeroi;
 }
 int ehDirecao(char direcao){
     return direcao == 'a' || direcao == 'w' || direcao == 's' || direcao == 'd';
@@ -50,10 +71,7 @@ void move(char direcao) {
             proximoy++;
             break;
     }
-    if(!ehValido(&m,proximox,proximoy)){
-        return;
-    }
-    if(!ehVazia(&m,proximox,proximoy)){
+    if(!podeAndar(&m,PLAYER,proximox,proximoy)){
         return;
     }
     andanomapa(&m,player.x,player.y,proximox,proximoy);
